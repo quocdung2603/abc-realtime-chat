@@ -33,7 +33,7 @@ io.on("connection", async (socket) => {
 
   conversationIds.forEach((id) => socket.join(id));
 
-  socket.on("disconnected", () => {
+  socket.on("disconnect", () => {
     onlineUsers.delete(user._id);
     io.emit("online-users", Array.from(onlineUsers.keys()));
     console.log(`socket disconnected: ${socket.id}`);
