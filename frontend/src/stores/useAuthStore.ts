@@ -2,106 +2,128 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { authService } from "@/services/authService";
 import type { AuthState } from "@/types/store";
+import { persist } from "zustand/middleware";
+import { useChatStore } from "./useChatStore";
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  accessToken: null,
-  user: null,
-  loading: false,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      accessToken: null,
+      user: null,
+      loading: false,
 
-  setAccessToken: (accessToken) => {
-    set({ accessToken });
-  },
+      setAccessToken: (accessToken) => {
+        set({ accessToken });
+      },
 
-  clearState: () => {
-    set({ accessToken: null, user: null, loading: false });
-  },
+      clearState: () => {
+        set({ accessToken: null, user: null, loading: false });
+        localStorage.clear();
+      },
 
-  signUp: async (username, password, email, lastName, firstName) => {
-    try {
-      set({ loading: true });
+      signUp: async (username, password, email, lastName, firstName) => {
+        try {
+          set({ loading: true });
 
-      await authService.signUp(username, password, email, lastName, firstName);
+          await authService.signUp(
+            username,
+            password,
+            email,
+            lastName,
+            firstName,
+          );
 
-      toast.success(
-        "Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập",
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Đăng ký không thành công");
-    } finally {
-      set({ loading: false });
-    }
-  },
+          toast.success(
+            "Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập",
+          );
+        } catch (error) {
+          console.error(error);
+          toast.error("Đăng ký không thành công");
+        } finally {
+          set({ loading: false });
+        }
+      },
 
-  signIn: async (username, password) => {
-    try {
-      set({ loading: true });
+      signIn: async (username, password) => {
+        try {
+          set({ loading: true });
 
-      const { accessToken } = await authService.signIn(username, password);
+          localStorage.clear();
 
-      get().setAccessToken(accessToken);
+          useChatStore.getState().reset();
 
-      await get().fetchMe();
+          const { accessToken } = await authService.signIn(username, password);
 
-      toast.success(
-        "Đăng nhập thành công! Bạn sẽ được chuyển sang trang chính",
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Đăng nhập không thành công");
-    } finally {
-      set({ loading: false });
-    }
-  },
+          get().setAccessToken(accessToken);
 
-  signOut: async () => {
-    try {
-      set({ loading: true });
-      get().clearState();
-      await authService.signOut();
-      toast.success(
-        "Đăng xuất thành công! Bạn sẽ được chuyển sang trang đăng nhập",
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Đăng xuất không thành công");
-    } finally {
-      set({ loading: false });
-    }
-  },
+          await get().fetchMe();
+          useChatStore.getState().fetchConversations();
 
-  fetchMe: async () => {
-    try {
-      set({ loading: true });
-      const user = await authService.fetchMe();
-      set({ user });
-      toast.success("Tải thông tin người dùng thành công");
-    } catch (error) {
-      console.error(error);
-      set({ user: null, accessToken: null });
-      toast.error("Tải thông tin người dùng không thành công");
-    } finally {
-      set({ loading: false });
-    }
-  },
+          toast.success(
+            "Đăng nhập thành công! Bạn sẽ được chuyển sang trang chính",
+          );
+        } catch (error) {
+          console.error(error);
+          toast.error("Đăng nhập không thành công");
+        } finally {
+          set({ loading: false });
+        }
+      },
 
-  refresh: async () => {
-    try {
-      set({ loading: true });
-      const { user, fetchMe, setAccessToken } = get();
-      const accessToken = await authService.refresh();
+      signOut: async () => {
+        try {
+          set({ loading: true });
+          get().clearState();
+          await authService.signOut();
+          toast.success(
+            "Đăng xuất thành công! Bạn sẽ được chuyển sang trang đăng nhập",
+          );
+        } catch (error) {
+          console.error(error);
+          toast.error("Đăng xuất không thành công");
+        } finally {
+          set({ loading: false });
+        }
+      },
 
-      setAccessToken(accessToken);
+      fetchMe: async () => {
+        try {
+          set({ loading: true });
+          const user = await authService.fetchMe();
+          set({ user });
+          toast.success("Tải thông tin người dùng thành công");
+        } catch (error) {
+          console.error(error);
+          set({ user: null, accessToken: null });
+          toast.error("Tải thông tin người dùng không thành công");
+        } finally {
+          set({ loading: false });
+        }
+      },
 
-      if (!user) {
-        await fetchMe();
-      }
-    } catch (error) {
-      console.error(error);
-      get().clearState();
-      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
-    } finally {
-      set({ loading: false });
-    }
-  },
-}));
+      refresh: async () => {
+        try {
+          set({ loading: true });
+          const { user, fetchMe, setAccessToken } = get();
+          const accessToken = await authService.refresh();
+
+          setAccessToken(accessToken);
+
+          if (!user) {
+            await fetchMe();
+          }
+        } catch (error) {
+          console.error(error);
+          get().clearState();
+          toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        } finally {
+          set({ loading: false });
+        }
+      },
+    }),
+    {
+      name: "auth-storage",
+      partialize: (state) => ({ user: state.user }), // chỉ persist user
+    },
+  ),
+);
