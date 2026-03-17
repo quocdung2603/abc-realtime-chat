@@ -67,14 +67,14 @@ export function SignupForm({
                   <Label htmlFor="lastName" className="block text-sm">Họ</Label>
                   <Input type="text" id="lastName" {...register("lastName")} />
                   {errors.lastName && (
-                    <p className="text-destructive text-sm"> {errors.lastName.message}</p>
+                    <p className="error-message"> {errors.lastName.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="block text-sm">Tên</Label>
                   <Input type="text" id="firstName" {...register("firstName")} />
                   {errors.firstName && (
-                    <p className="text-destructive text-sm"> {errors.firstName.message}</p>
+                    <p className="error-message"> {errors.firstName.message}</p>
                   )}
                 </div>
               </div>
@@ -83,7 +83,7 @@ export function SignupForm({
                 <Label htmlFor="username" className="block text-sm">Tên đăng nhập</Label>
                 <Input type="text" id="username" {...register("username")} />
                 {errors.username && (
-                  <p className="text-destructive text-sm"> {errors.username.message}</p>
+                  <p className="error-message"> {errors.username.message}</p>
                 )}
               </div>
 
@@ -91,7 +91,7 @@ export function SignupForm({
                 <Label htmlFor="email" className="block text-sm">Email</Label>
                 <Input type="email" id="email" {...register("email")} />
                 {errors.email && (
-                  <p className="text-destructive text-sm"> {errors.email.message}</p>
+                  <p className="error-message"> {errors.email.message}</p>
                 )}
               </div>
 
@@ -99,7 +99,7 @@ export function SignupForm({
                 <Label htmlFor="password" className="block text-sm">Mật khẩu</Label>
                 <Input type="password" id="password" {...register("password")} />
                 {errors.password && (
-                  <p className="text-destructive text-sm"> {errors.password.message}</p>
+                  <p className="error-message"> {errors.password.message}</p>
                 )}
               </div>
 

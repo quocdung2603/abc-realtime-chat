@@ -61,6 +61,7 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
         ></Input>
         <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
           <Button
+            asChild
             variant="ghost"
             size="icon"
             className="size-8 hover:bg-primary/10 transition-smooth"

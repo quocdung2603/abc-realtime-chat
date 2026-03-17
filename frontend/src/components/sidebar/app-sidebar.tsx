@@ -1,5 +1,5 @@
-import * as React from "react"
-import { NavUser } from "@/components/sidebar/nav-user"
+import * as React from "react";
+import { NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -12,20 +12,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Moon, Sun } from "lucide-react"
-import { Switch } from "../ui/switch"
-import CreateNewChat from "../chat/NewGroupChatModal"
-import NewGroupChatModal from "../chat/NewGroupChatModal"
-import GroupChatList from "../chat/GroupChatList"
-import AddFriendModal from "../chat/AddFriendModal"
-import DirectMessageList from "../chat/DirectMessageList"
-import { useThemeStore } from "@/stores/useThemeStore"
-import { useAuthStore } from "@/stores/useAuthStore"
+} from "@/components/ui/sidebar";
+import { Moon, Sun } from "lucide-react";
+import { Switch } from "../ui/switch";
+import GroupChatList from "../chat/GroupChatList";
+import AddFriendModal from "../chat/AddFriendModal";
+import DirectMessageList from "../chat/DirectMessageList";
+import { useThemeStore } from "@/stores/useThemeStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import CreateNewChat from "../chat/CreateNewChat";
+import NewGroupChatModal from "../chat/NewGroupChatModal";
+import { useChatStore } from "@/stores/useChatStore";
+import ConversationSkeleton from "../skeleton/ConversationSkeleton";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
+  const { convoLoading } = useChatStore();
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -33,10 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              className="bg-gradient-primary"
-            >
+            <SidebarMenuButton size="lg" className="bg-gradient-primary">
               <a href="#" className="w-full">
                 <div className="flex w-full justify-between items-center px-2">
                   <h1 className="text-xl font-bold text-white">ABC RC</h1>
@@ -67,35 +67,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         {/* group chat */}
         <SidebarGroup>
-          <SidebarGroupLabel className="uppercase">
-            Nhóm chat
-          </SidebarGroupLabel>
-          <SidebarGroupAction title="Tạo nhóm" className="cursor-pointer">
+          <div className="w-full flex items-center justify-between">
+            <SidebarGroupLabel className="uppercase">
+              Nhóm chat
+            </SidebarGroupLabel>
             <NewGroupChatModal />
-          </SidebarGroupAction>
+          </div>
           <SidebarGroupContent>
-            <GroupChatList />
+            {convoLoading ? <ConversationSkeleton /> : <GroupChatList />}
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* direct chat */}
         <SidebarGroup>
-          <SidebarGroupLabel className="uppercase">
-            Bạn bè
-          </SidebarGroupLabel>
+          <SidebarGroupLabel className="uppercase">Bạn bè</SidebarGroupLabel>
           <SidebarGroupAction title="Kết bạn" className="cursor-pointer">
             <AddFriendModal />
           </SidebarGroupAction>
           <SidebarGroupContent>
-            <DirectMessageList />
+            {convoLoading ? <ConversationSkeleton /> : <DirectMessageList />}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
       {/* footer */}
-      <SidebarFooter>
-        {user && <NavUser user={user} />}
-      </SidebarFooter>
+      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
-  )
+  );
 }
